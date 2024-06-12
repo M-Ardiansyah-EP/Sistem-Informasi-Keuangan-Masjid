@@ -15,7 +15,18 @@ class Kas extends Model
         'tanggal',
         'kategori',
         'jenis',
+        'keterangan',
         'jumlah',
         'saldo_akhir',
     ];
+
+    public function pemasukan()
+    {
+        return $this->hasMany(Pemasukan::class);
+    }
+
+    public function pengeluaran()
+    {
+        return $this->hasMany(Pengeluaran::class);
+    }
 }

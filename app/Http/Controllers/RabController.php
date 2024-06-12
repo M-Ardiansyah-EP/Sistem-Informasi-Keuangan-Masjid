@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pemasukan;
+use App\Models\Pengeluaran;
 use App\Models\Rab;
 use Illuminate\Http\Request;
 
@@ -13,18 +15,20 @@ class RabController extends Controller
         return view('rabs.index', compact('rabs'));
     }
 
-    public function create()
+    public function create(Rab $rab)
     {
-        return view('rabs.create');
+        $pemasukan = Pemasukan::pluck('jenis')->toArray();
+        $pengeluaran = Pengeluaran::pluck('jenis')->toArray();
+        return view('rabs.create', compact('rab', 'pemasukan', 'pengeluaran'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'periode' => 'required|date',
-            'kategori' => 'nullable|string',
-            'jenis' => 'required|in:pemasukan,pengeluaran',
-            'keterangan' => 'required|string',
+            'kategori' => 'required|in:pemasukan,pengeluaran',
+            'jenis' => 'required',
+            'keterangan' => 'nullable',
             'jumlah' => 'required',
         ]);
 
@@ -36,16 +40,18 @@ class RabController extends Controller
 
     public function edit(Rab $rab)
     {
-        return view('rabs.edit', compact('rab'));
+        $pemasukan = Pemasukan::pluck('jenis')->toArray();
+        $pengeluaran = Pengeluaran::pluck('jenis')->toArray();
+        return view('rabs.edit', compact('rab', 'pemasukan', 'pengeluaran'));
     }
 
     public function update(Request $request, Rab $rab)
     {
         $request->validate([
             'periode' => 'required|date',
-            'kategori' => 'nullable|string',
-            'jenis' => 'required|in:pemasukan,pengeluaran',
-            'keterangan' => 'required|string',
+            'kategori' => 'required|in:pemasukan,pengeluaran',
+            'jenis' => 'required',
+            'keterangan' => 'nullable',
             'jumlah' => 'required',
         ]);
 

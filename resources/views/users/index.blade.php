@@ -3,8 +3,12 @@
 @section('title', 'Data Donatur')
 
 @section('content')
-<div class="container mt-5">
-    <h2>Users List</h2>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Users List</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Data Donatur</li>
+    </ol>
 
     @if ($message = Session::get('success'))
         <div class="alert alert-success">
@@ -12,34 +16,43 @@
         </div>
     @endif
 
-    <a class="btn btn-success mb-2" href="{{ route('users.create') }}">Add New User</a>
-
-    <table class="table table-bordered">
-        <tr>
-            <th>No</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Action</th>
-        </tr>
-        @foreach ($users as $user)
-            @if($user->role == 'user')
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>{{ $user->role }}</td>
-                    <td>
-                        <form action="{{ route('users.destroy', $user->id) }}" method="POST">
-                            <a class="btn btn-primary" href="{{ route('users.edit', $user->id) }}">Edit</a>
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @endif
-        @endforeach
-    </table>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Users List
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($users as $user)
+                            @if($user->role == 'user')
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $user->name }}</td>
+                                    <td>{{ $user->email }}</td>
+                                    <td>
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
