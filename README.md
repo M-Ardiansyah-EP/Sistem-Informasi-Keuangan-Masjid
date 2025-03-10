@@ -1,11 +1,11 @@
-<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; justify-items: center;">
-  <img src="public/images/halaman_depan.png" style="width: 100%; max-width: 300px;" alt="Halaman Depan">
-  <img src="public/images/login.png" style="width: 100%; max-width: 300px;" alt="Login">
-  <img src="public/images/admin.png" style="width: 100%; max-width: 300px;" alt="Admin">
-  <img src="public/images/ketua.png" style="width: 100%; max-width: 300px;" alt="Ketua">
-  <img src="public/images/halaman_donatur.png" style="width: 100%; max-width: 300px;" alt="Halaman Donatur">
-  <img src="public/images/midtrans.png" style="width: 100%; max-width: 300px;" alt="Midtrans">
-</div>
+<p align="center">
+  <img src="public/images/halaman_depan.png" width="500" alt="halaman_depan">
+  <img src="public/images/login.png" width="500" alt="login">
+  <img src="public/images/admin.png" width="500" alt="admin">
+  <img src="public/images/ketua.png" width="500" alt="ketua">
+  <img src="public/images/halaman_donatur.png" width="500" alt="halaman_donatur">
+  <img src="public/images/midtrans.png" width="500" alt="midtrans">
+</p>
 
 # Sistem Informasi Keuangan Masjid Jenderal Ahmad Yani
 
