@@ -18,5 +18,12 @@ class Zakat extends Model
         'alamat',
         'keterangan',
         'jumlah',
+        'kas_id',
+        'komentar'
     ];
+
+    public function kas()
+    {
+        return $this->belongsTo(Kas::class);
+    }
 }

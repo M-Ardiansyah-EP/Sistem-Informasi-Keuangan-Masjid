@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'jenis_kelamin',
+        'tanggal_lahir',
+        'nomor_telepon',
+        'alamat',
     ];
 
     /**
@@ -49,5 +53,10 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function donasi()
+    {
+        return $this->hasMany(Donasi::class);
     }
 }

@@ -12,11 +12,18 @@ class Parkir extends Model
     protected $table = 'parkirs';
 
     protected $fillable = [
+        'tanggal',
         'nomor_kendaraan',
         'jenis_kendaraan',
         'nama',
-        'waktu_masuk',
-        'waktu_keluar',
-        'biaya',
+        'keterangan',
+        'jumlah',
+        'kas_id',
+        'komentar'
     ];
+
+    public function kas()
+    {
+        return $this->belongsTo(Kas::class);
+    }
 }

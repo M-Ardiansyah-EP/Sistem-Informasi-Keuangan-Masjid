@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('parkirs', function (Blueprint $table) {
             $table->id();
+            $table->date('tanggal');
             $table->string('nomor_kendaraan');
             $table->string('jenis_kendaraan');
             $table->string('nama');
-            $table->date('waktu_masuk');
-            $table->date('waktu_keluar')->nullable();
-            $table->bigInteger('biaya');
+            $table->text('keterangan')->nullable();
+            $table->bigInteger('jumlah');
+            $table->text('komentar')->nullable();
             $table->timestamps();
         });
     }

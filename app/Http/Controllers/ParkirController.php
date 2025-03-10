@@ -20,15 +20,16 @@ class ParkirController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'tanggal' => 'required|date',
             'nomor_kendaraan' => 'required|string',
             'jenis_kendaraan' => 'required|string',
             'nama' => 'required|string',
-            'waktu_masuk' => 'required|date',
-            'waktu_keluar' => 'nullable|date',
-            'biaya' => 'required',
+            'keterangan' => 'nullable',
+            'jumlah' => 'required',
+            'komentar' => 'nullable',
         ]);
 
-        $request['biaya'] = str_replace('.','', $request['biaya']);
+        $request['jumlah'] = str_replace('.','', $request['jumlah']);
 
         Parkir::create($request->all());
 
@@ -44,15 +45,16 @@ class ParkirController extends Controller
     public function update(Request $request, Parkir $parkir)
     {
         $request->validate([
+            'tanggal' => 'required|date',
             'nomor_kendaraan' => 'required|string',
             'jenis_kendaraan' => 'required|string',
             'nama' => 'required|string',
-            'waktu_masuk' => 'required|date',
-            'waktu_keluar' => 'nullable|date',
-            'biaya' => 'required',
+            'keterangan' => 'nullable',
+            'jumlah' => 'required',
+            'komentar' => 'nullable',
         ]);
 
-        $request['biaya'] = str_replace('.','', $request['biaya']);
+        $request['jumlah'] = str_replace('.','', $request['jumlah']);
 
         $parkir->update($request->all());
 

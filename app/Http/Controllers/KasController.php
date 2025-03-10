@@ -2,154 +2,317 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BukuKas;
+use App\Models\Operasional;
+use App\Models\Infaq;
+use App\Models\Insidental;
 use App\Models\Kas;
-use App\Models\Pemasukan;
-use App\Models\Pengeluaran;
+use App\Models\Kontribusi;
+use App\Models\Lainnya;
+use App\Models\Parkir;
+use App\Models\Pengajian;
+use App\Models\Qurban;
+use App\Models\Zakat;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Mpdf\Mpdf;
 
 class KasController extends Controller
 {
-    public function index()
-{
-    // Mengambil semua data kas dan mengurutkannya berdasarkan tanggal
-    $kas = Kas::orderBy('tanggal')->get();
-
-    // Menginisialisasi saldo awal
-    $saldo_akhir_total = 0;
-
-    // Menghitung saldo akhir untuk setiap transaksi dan mengupdate saldo akhir total
-    foreach ($kas as $transaksi) {
-        if ($transaksi->kategori == 'pemasukan') {
-            $saldo_akhir_total += $transaksi->jumlah;
-        } else {
-            $saldo_akhir_total -= $transaksi->jumlah;
+    public function index(Request $request)
+    {
+        $generateUniqueId = function ($prefix, $tanggal) {
+            // Extract year, month, and day from the date
+            $datePart = Carbon::parse($tanggal)->format('Ymd');
+            // Combine prefix and date with a hyphen
+            return $prefix . '-' . $datePart;
+        };
+    
+        // Mengambil data pemasukan dan pengeluaran dari model terkait
+        $pemasukan = [
+            'infaq' => Infaq::all(),
+            'zakat' => Zakat::all(),
+            'qurban' => Qurban::all(),
+            'parkir' => Parkir::all(),
+            'kontribusi' => Kontribusi::all(),
+            'insidental' => Insidental::all(),
+        ];
+    
+        $pengeluaran = [
+            'operasional' => Operasional::all(),
+            'pengajian' => Pengajian::all(),
+            'lainnya' => Lainnya::all(),
+        ];
+    
+        // Menyimpan semua ID kas yang valid
+        $validKasIds = [];
+    
+        // Menambahkan atau memperbarui data pemasukan
+        foreach ($pemasukan as $jenis => $data) {
+            foreach ($data as $item) {
+                if (!$item->kas_id) {
+                    $uniqueId = $generateUniqueId($jenis, $item->tanggal);
+                    // Pastikan ID unik belum digunakan
+                    while (Kas::where('unique_id', $uniqueId)->exists()) {
+                        $uniqueId = $generateUniqueId($jenis, $item->tanggal);
+                    }
+                    $kas_baru = Kas::create([
+                        'unique_id' => $uniqueId,
+                        'tanggal' => $item->tanggal,
+                        'kategori' => 'pemasukan',
+                        'jenis' => $jenis,
+                        'keterangan' => $item->keterangan,
+                        'jumlah' => $item->jumlah,
+                        'saldo_akhir' => 0, // Akan dihitung ulang nanti
+                    ]);
+                    $item->kas_id = $kas_baru->id;
+                    $item->save();
+                }
+                $validKasIds[] = $item->kas_id;
+            }
         }
-        $transaksi->saldo_akhir = $saldo_akhir_total;
-        $transaksi->save();
+    
+        // Menambahkan atau memperbarui data pengeluaran
+        foreach ($pengeluaran as $jenis => $data) {
+            foreach ($data as $item) {
+                if (!$item->kas_id) {
+                    $uniqueId = $generateUniqueId($jenis, $item->tanggal);
+                    // Pastikan ID unik belum digunakan
+                    while (Kas::where('unique_id', $uniqueId)->exists()) {
+                        $uniqueId = $generateUniqueId($jenis, $item->tanggal);
+                    }
+                    $kas_baru = Kas::create([
+                        'unique_id' => $uniqueId,
+                        'tanggal' => $item->tanggal,
+                        'kategori' => 'pengeluaran',
+                        'jenis' => $jenis,
+                        'keterangan' => $item->keterangan,
+                        'jumlah' => $item->jumlah,
+                        'saldo_akhir' => 0, // Akan dihitung ulang nanti
+                    ]);
+                    $item->kas_id = $kas_baru->id;
+                    $item->save();
+                }
+                $validKasIds[] = $item->kas_id;
+            }
+        }
+    
+        // Menghapus entri Kas yang tidak memiliki data terkait
+        Kas::whereNotIn('id', $validKasIds)->delete();
+    
+        // Mendapatkan parameter pencarian dari request
+        $search = $request->input('search');
+    
+        // Mengambil data kas berdasarkan parameter pencarian
+        $kasQuery = Kas::query();
+    
+        if ($search) {
+            $kasQuery->where(function($query) use ($search) {
+                $query->where('unique_id', 'like', "%{$search}%")
+                      ->orWhere('kategori', 'like', "%{$search}%")
+                      ->orWhere('jenis', 'like', "%{$search}%")
+                      ->orWhere('keterangan', 'like', "%{$search}%")
+                      ->orWhere('jumlah', 'like', "%{$search}%")
+                      ->orWhere('saldo_akhir', 'like', "%{$search}%");
+            });
+        }
+    
+        // Mengambil data kas dengan pagination
+        $kas = $kasQuery->orderBy('tanggal')->paginate(10);
+    
+        // Menghitung ulang saldo akhir
+        $saldo_akhir_total = 0;
+        $totalpemasukan = 0;
+        $totalpengeluaran = 0;
+    
+        foreach ($kas as $transaksi) {
+            if ($transaksi->kategori == 'pemasukan') {
+                $saldo_akhir_total += $transaksi->jumlah;
+                $totalpemasukan += $transaksi->jumlah;
+            } else {
+                $saldo_akhir_total -= $transaksi->jumlah;
+                $totalpengeluaran += $transaksi->jumlah;
+            }
+            $transaksi->saldo_akhir = $saldo_akhir_total;
+        }
+    
+        // Memeriksa apakah data kas telah disetujui
+        $disetujui = Kas::where('disetujui', false)->doesntExist();
+    
+        // Mengembalikan tampilan bersama data yang telah diupdate
+        return view('kas.index', compact('kas', 'pemasukan', 'pengeluaran', 'saldo_akhir_total', 'totalpemasukan', 'totalpengeluaran', 'disetujui', 'search'));
+    }
+    
+    
+
+    public function setujui()
+    {
+        // Menyetujui semua data kas
+        Kas::query()->update(['disetujui' => true]);
+
+        return redirect()->route('kas.index')->with('success', 'Semua data kas telah disetujui. PDF sekarang tersedia untuk diunduh.');
     }
 
-    // Mengambil ulang semua data kas setelah diupdate
-    $kas = Kas::orderBy('tanggal')->get();
+    public function tolak()
+    {
+        // Menolak semua data kas
+        Kas::query()->update(['disetujui' => false]);
 
-    // Mengembalikan tampilan bersama data yang telah diupdate
-    $totalpemasukan = $kas->where('kategori', 'pemasukan')->sum('jumlah');
-    $totalpengeluaran = $kas->where('kategori', 'pengeluaran')->sum('jumlah');
-    return view('kas.index', compact('kas', 'saldo_akhir_total', 'totalpemasukan', 'totalpengeluaran'));
-}
+        return redirect()->route('kas.index')->with('info', 'Semua data kas telah ditolak. PDF tidak tersedia untuk diunduh.');
+    }
 
+    public function view_pdf()
+    {
+        // Memeriksa apakah data kas telah disetujui
+        if (!Kas::where('disetujui', false)->doesntExist()) {
+            return redirect()->route('kas.index')->with('error', 'PDF tidak tersedia karena data kas belum disetujui.');
+        }
+
+        $kas = Kas::orderBy('tanggal')->get();
+
+        // Menginisialisasi saldo awal, total pemasukan, dan total pengeluaran
+        $saldo_akhir_total = 0;
+        $totalpemasukan = 0;
+        $totalpengeluaran = 0;
+
+        // Menghitung saldo akhir, total pemasukan, dan total pengeluaran untuk setiap transaksi
+        foreach ($kas as $transaksi) {
+            if ($transaksi->kategori == 'pemasukan') {
+                $saldo_akhir_total += $transaksi->jumlah;
+                $totalpemasukan += $transaksi->jumlah;
+            } else {
+                $saldo_akhir_total -= $transaksi->jumlah;
+                $totalpengeluaran += $transaksi->jumlah;
+            }
+            $transaksi->saldo_akhir = $saldo_akhir_total;
+        }
+
+        // Menggunakan view untuk merender HTML ke dalam PDF
+        $html = view('kas.pdf', compact('kas', 'saldo_akhir_total', 'totalpemasukan', 'totalpengeluaran'))->render();
+        $mpdf = new Mpdf();
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('kas.pdf', 'I');
+    }
 
     public function create()
     {
-        $pemasukan = Pemasukan::pluck('jenis')->toArray();
-        $pengeluaran = Pengeluaran::pluck('jenis')->toArray();
-        return view('kas.create', compact('pemasukan', 'pengeluaran'));
+        return view('kas.create');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'tanggal' => 'required|date',
-            'kategori' => 'required|in:pemasukan,pengeluaran',
-            'jenis' => 'required',
-            'keterangan' => 'nullable',
-            'jumlah' => 'required',
-        ]);
 
-        $request['jumlah'] = str_replace('.','', $request['jumlah']);
-
-        $saldo_akhir = $this->hitungSaldoAkhir($request->kategori, $request->jumlah);
-
-        Kas::create([
-            'tanggal' => $request->tanggal,
-            'kategori' => $request->kategori,
-            'jenis' => $request->jenis,
-            'keterangan' => $request->keterangan,
-            'jumlah' => $request->jumlah,
-            'saldo_akhir' => $saldo_akhir,
-        ]);
-
-        return redirect()->route('kas.index')->with('success', 'Kas created successfully.');
+        return view('kas.index');
     }
 
-    public function edit(Kas $ka)
+
+    public function show(Kas $kas)
     {
-        $pemasukan = Pemasukan::pluck('jenis')->toArray();
-        $pengeluaran = Pengeluaran::pluck('jenis')->toArray();
-        return view('kas.edit', compact('ka', 'pemasukan', 'pengeluaran'));
+        return view('kas.show', compact('kas'));
     }
 
-    public function update(Request $request, Kas $ka)
+    public function edit(Kas $kas)
     {
-        $request->validate([
-            'tanggal' => 'required|date',
-            'kategori' => 'required|in:pemasukan,pengeluaran',
-            'jenis' => 'required',
-            'keterangan' => 'nullable',
-            'jumlah' => 'required',
-        ]);
+        return view('kas.edit', compact('kas'));
+    }
 
-        $request['jumlah'] = str_replace('.','', $request['jumlah']);
+    public function update(Request $request, Kas $kas)
+    {
+        
+        return view('kas.index');
+    }
 
-        // Mendapatkan saldo terakhir sebelum data ini diperbarui
-        $saldo_sebelumnya = Kas::where('id', '<>', $ka->id)->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->first();
-        $saldo_sebelumnya = $saldo_sebelumnya ? $saldo_sebelumnya->saldo_akhir : 0;
+    public function destroy(Kas $kas)
+    {
+        $kas->delete();
+        return redirect()->route('kas.index')->with('success', 'Data kas berhasil dihapus');
+    }
 
-        // Menghitung perubahan saldo akibat perubahan data
-        $perubahan_saldo = $ka->jumlah;
-
-        // Periksa apakah kategori transaksi diperbarui
-        if ($request->kategori != $ka->kategori) {
-            if ($ka->kategori == 'pemasukan') {
-                $perubahan_saldo *= -1; // Kurangi jumlah jika sebelumnya adalah pemasukan
+    public function indexHome(Request $request)
+    {
+        // Mendapatkan awal dan akhir bulan saat ini
+        $awalBulan = Carbon::now()->startOfMonth();
+        $akhirBulan = Carbon::now()->endOfMonth();
+    
+        // Mengambil data pemasukan dan pengeluaran dari model terkait dalam bulan ini
+        $pemasukan = [
+            'infaq' => Infaq::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+            'zakat' => Zakat::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+            'qurban' => Qurban::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+            'parkir' => Parkir::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+            'kontribusi' => Kontribusi::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+            'insidental' => Insidental::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+        ];
+    
+        $pengeluaran = [
+            'operasional' => Operasional::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+            'pengajian' => Pengajian::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+            'lainnya' => Lainnya::whereBetween('tanggal', [$awalBulan, $akhirBulan])->get(),
+        ];
+    
+        // Mengambil data kas dalam bulan ini
+        $kas = Kas::whereBetween('tanggal', [$awalBulan, $akhirBulan])->orderBy('tanggal')->paginate(10);
+    
+        // Menghitung ulang saldo akhir
+        $saldo_akhir_total = 0;
+        $totalpemasukan = 0;
+        $totalpengeluaran = 0;
+    
+        foreach ($kas as $transaksi) {
+            if ($transaksi->kategori == 'pemasukan') {
+                $saldo_akhir_total += $transaksi->jumlah;
+                $totalpemasukan += $transaksi->jumlah;
             } else {
-                $perubahan_saldo *= 1; // Tambah jumlah jika sebelumnya adalah pengeluaran
+                $saldo_akhir_total -= $transaksi->jumlah;
+                $totalpengeluaran += $transaksi->jumlah;
             }
-        } else {
-            // Periksa apakah jumlah transaksi diperbarui
-            $perubahan_saldo = $request->jumlah - $ka->jumlah;
+            $transaksi->saldo_akhir = $saldo_akhir_total;
+        }
+    
+        // Mengembalikan tampilan bersama data yang telah diupdate
+        return view('kas.indexHome', compact('kas', 'pemasukan', 'pengeluaran', 'saldo_akhir_total', 'totalpemasukan', 'totalpengeluaran'));
+    }
+    
+    public function simpanBukuKas()
+    {
+        $bulanLalu = Carbon::now()->subMonth()->startOfMonth();
+        $awalBulanIni = Carbon::now()->startOfMonth();
+
+        $transaksibulanLalu = Kas::whereBetween('tanggal', [$bulanLalu, $awalBulanIni->subDay()])->orderBy('tanggal')->get();
+
+        if ($transaksibulanLalu->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada transaksi untuk disimpan ke buku kas.');
         }
 
-        // Perbarui saldo akhir untuk data setelah data ini
-        $kas_setelahnya = Kas::where('tanggal', '>', $ka->tanggal)->get();
-        foreach ($kas_setelahnya as $kas) {
-            $kas->saldo_akhir += $perubahan_saldo;
-            $kas->save();
-        }
+        $saldoAwal = BukuKas::latest()->value('saldo_akhir') ?? 0;
+        $totalPemasukan = $transaksibulanLalu->where('kategori', 'pemasukan')->sum('jumlah');
+        $totalPengeluaran = $transaksibulanLalu->where('kategori', 'pengeluaran')->sum('jumlah');
+        $saldoAkhir = $saldoAwal + $totalPemasukan - $totalPengeluaran;
 
-        // Hitung saldo akhir untuk data yang diperbarui
-        $saldo_akhir = $saldo_sebelumnya + $perubahan_saldo;
-
-        // Perbarui data
-        $ka->update([
-            'tanggal' => $request->tanggal,
-            'kategori' => $request->kategori,
-            'jenis' => $request->jenis,
-            'keterangan' => $request->keterangan,
-            'jumlah' => $request->jumlah,
-            'saldo_akhir' => $saldo_akhir,
+        BukuKas::create([
+            'periode' => $bulanLalu,
+            'saldo_awal' => $saldoAwal,
+            'total_pemasukan' => $totalPemasukan,
+            'total_pengeluaran' => $totalPengeluaran,
+            'saldo_akhir' => $saldoAkhir,
+            'detail_transaksi' => $transaksibulanLalu->toJson(),
         ]);
 
-        return redirect()->route('kas.index')->with('success', 'Kas updated successfully.');
+        return redirect()->back()->with('success', 'Data berhasil disimpan ke buku kas.');
     }
 
-    public function destroy(Kas $ka)
+    public function indexBukuKas(Request $request)
     {
-        $ka->delete();
-        return redirect()->route('kas.index')->with('success', 'Kas deleted successfully.');
+        $bukuKas = BukuKas::orderBy('periode', 'desc')->paginate(10);
+
+        return view('buku_kas.index', compact('bukuKas'));
     }
 
-    private function hitungSaldoAkhir($kategori, $jumlah, $id = null)
+    public function showBukuKas($id)
     {
-        // Mendapatkan saldo terakhir dari database
-        $saldo_sebelumnya = Kas::where('id', '<>', $id)->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->first();
+        $bukuKas = BukuKas::findOrFail($id);
+        $detailTransaksi = json_decode($bukuKas->detail_transaksi, true);
 
-        $saldo_sebelumnya = $saldo_sebelumnya ? $saldo_sebelumnya->saldo_akhir : 0;
-
-        // Menghitung saldo akhir
-        if ($kategori == 'pemasukan') {
-            return $saldo_sebelumnya + $jumlah;
-        } else {
-            return $saldo_sebelumnya - $jumlah;
-        }
+        return view('buku_kas.show', compact('bukuKas', 'detailTransaksi'));
     }
 }

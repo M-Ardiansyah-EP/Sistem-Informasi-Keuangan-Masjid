@@ -15,5 +15,12 @@ class Infaq extends Model
         'tanggal',
         'keterangan',
         'jumlah',
+        'kas_id',
+        'komentar' 
     ];
+
+    public function kas()
+    {
+        return $this->belongsTo(Kas::class);
+    }
 }

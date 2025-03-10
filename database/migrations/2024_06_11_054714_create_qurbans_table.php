@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('kelompok');
             $table->text('keterangan')->nullable();
             $table->bigInteger('jumlah');
+            $table->text('komentar')->nullable();
             $table->timestamps();
         });
     }

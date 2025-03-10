@@ -24,6 +24,7 @@ class PengajianController extends Controller
             'tanggal' => 'required|date',
             'keterangan' => 'nullable',
             'jumlah' => 'required',
+            'komentar' => 'nullable',
         ]);
 
         $request['jumlah'] = str_replace('.','', $request['jumlah']);
@@ -46,6 +47,7 @@ class PengajianController extends Controller
             'tanggal' => 'required|date',
             'keterangan' => 'nullable',
             'jumlah' => 'required',
+            'komentar' => 'nullable',
         ]);
 
         $request['jumlah'] = str_replace('.','', $request['jumlah']);

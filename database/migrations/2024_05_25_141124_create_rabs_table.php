@@ -13,13 +13,11 @@ return new class extends Migration
     {
         Schema::create('rabs', function (Blueprint $table) {
             $table->id();
+            $table->string('nama');
             $table->date('periode');
             $table->enum('kategori', ['pemasukan', 'pengeluaran']);
-            $table->enum('jenis', [
-                'infaq', 'zakat', 'qurban', 'parkir', 'kontribusi', 'insidental', 
-                'kebersihan_keamanan', 'beban_operasional', 'konsumsi', 'perawatan', 'pengajian'
-            ]);
-            $table->text('keterangan')->nullable();
+            $table->string('jenis');
+            $table->longText('keterangan')->nullable();
             $table->biginteger('jumlah');  
             $table->timestamps();
         });

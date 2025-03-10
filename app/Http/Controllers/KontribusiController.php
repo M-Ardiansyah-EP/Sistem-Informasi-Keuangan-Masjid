@@ -24,6 +24,7 @@ class KontribusiController extends Controller
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
             'jumlah' => 'required',
+            'komentar' => 'nullable',
         ]);
 
         $request['jumlah'] = str_replace('.','', $request['jumlah']);
@@ -45,6 +46,7 @@ class KontribusiController extends Controller
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
             'jumlah' => 'required',
+            'komentar' => 'nullable',
         ]);
 
         $request['jumlah'] = str_replace('.','', $request['jumlah']);

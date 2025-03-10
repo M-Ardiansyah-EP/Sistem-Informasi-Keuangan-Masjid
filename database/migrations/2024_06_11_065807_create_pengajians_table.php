@@ -16,6 +16,7 @@ return new class extends Migration
             $table->date('tanggal');
             $table->text('keterangan')->nullable();
             $table->bigInteger('jumlah');
+            $table->text('komentar')->nullable();
             $table->timestamps();
         });
     }

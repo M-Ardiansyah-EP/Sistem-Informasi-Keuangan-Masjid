@@ -12,10 +12,12 @@ class Rab extends Model
     protected $table = 'rabs';
     
     protected $fillable = [
+        'nama',
         'periode',
         'kategori',
         'jenis',
         'keterangan',
         'jumlah',
+        'disetujui'
     ];
 }

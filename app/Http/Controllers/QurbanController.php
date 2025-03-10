@@ -25,6 +25,7 @@ class QurbanController extends Controller
             'kelompok' => 'required|string',
             'keterangan' => 'nullable|string',
             'jumlah' => 'required',
+            'komentar' => 'nullable',
         ]);
 
         $request['jumlah'] = str_replace('.','', $request['jumlah']);
@@ -47,6 +48,7 @@ class QurbanController extends Controller
             'kelompok' => 'required|string',
             'keterangan' => 'nullable|string',
             'jumlah' => 'required',
+            'komentar' => 'nullable',
         ]);
 
         $request['jumlah'] = str_replace('.','', $request['jumlah']);

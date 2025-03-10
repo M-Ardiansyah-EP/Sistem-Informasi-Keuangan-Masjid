@@ -17,7 +17,11 @@ class UsersTableSeeder extends Seeder
             'name' => 'Ketua',
             'email' => 'ketua@gmail.com',
             'password' => bcrypt('12345678'),
-            'role' => 'ketua'
+            'role' => 'ketua',
+            'jenis_kelamin' => 'laki-laki',
+            'tanggal_lahir' => '1990-01-01',
+            'nomor_telepon' => 123456789011, 
+            'alamat' => 'Jl. Ketua No. 1'
         ]);
         $ketua->role()->associate($ketuaRole);
         $ketua->save();
@@ -26,7 +30,11 @@ class UsersTableSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => bcrypt('12345678'),
-            'role' => 'admin'
+            'role' => 'admin',
+            'jenis_kelamin' => 'laki-laki',
+            'tanggal_lahir' => '1990-01-01',
+            'nomor_telepon' => 123456789011, 
+            'alamat' => 'Jl. Admin No. 1'
         ]);
         $admin->role()->associate($adminRole);
         $admin->save();
