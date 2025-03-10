@@ -1,4 +1,3 @@
-```html
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
   <img src="public/images/halaman_depan.png" style="max-width: 400px; width: 100%;" alt="Halaman Depan">
   <img src="public/images/login.png" style="max-width: 400px; width: 100%;" alt="Login">
@@ -7,7 +6,6 @@
   <img src="public/images/halaman_donatur.png" style="max-width: 400px; width: 100%;" alt="Halaman Donatur">
   <img src="public/images/midtrans.png" style="max-width: 400px; width: 100%;" alt="Midtrans">
 </div>
-```
 
 # Sistem Informasi Keuangan Masjid Jenderal Ahmad Yani
 
