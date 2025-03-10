@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="public/images/halaman_depan.png" width="500" alt="halaman_depan">
-  <img src="public/images/login.png" width="500" alt="login">
-  <img src="public/images/admin.png" width="500" alt="admin">
-  <img src="public/images/ketua.png" width="500" alt="ketua">
-  <img src="public/images/halaman_donatur.png" width="500" alt="halaman_donatur">
-  <img src="public/images/midtrans.png" width="500" alt="midtrans">
+  <img src="public/images/halaman_depan.png" width="400" alt="halaman_depan">
+  <img src="public/images/login.png" width="400" alt="login">
+  <img src="public/images/admin.png" width="400" alt="admin">
+  <img src="public/images/ketua.png" width="400" alt="ketua">
+  <img src="public/images/halaman_donatur.png" width="400" alt="halaman_donatur">
+  <img src="public/images/midtrans.png" width="400" alt="midtrans">
 </p>
 
 # Sistem Informasi Keuangan Masjid Jenderal Ahmad Yani
