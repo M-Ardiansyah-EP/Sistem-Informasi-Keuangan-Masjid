@@ -1,11 +1,13 @@
-<p align="center">
-  <img src="public/images/halaman_depan.png" width="400" alt="Logo Proyek">
-  <img src="public/images/login.png" width="400" alt="Logo Proyek">
-  <img src="public/images/admin.png" width="400" alt="Logo Proyek">
-  <img src="public/images/ketua.png" width="400" alt="Logo Proyek">
-  <img src="public/images/halaman_donatur.png" width="400" alt="Logo Proyek">
-  <img src="public/images/midtrans.png" width="400" alt="Logo Proyek">
-</p>
+```html
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+  <img src="public/images/halaman_depan.png" style="max-width: 400px; width: 100%;" alt="Halaman Depan">
+  <img src="public/images/login.png" style="max-width: 400px; width: 100%;" alt="Login">
+  <img src="public/images/admin.png" style="max-width: 400px; width: 100%;" alt="Admin">
+  <img src="public/images/ketua.png" style="max-width: 400px; width: 100%;" alt="Ketua">
+  <img src="public/images/halaman_donatur.png" style="max-width: 400px; width: 100%;" alt="Halaman Donatur">
+  <img src="public/images/midtrans.png" style="max-width: 400px; width: 100%;" alt="Midtrans">
+</div>
+```
 
 # Sistem Informasi Keuangan Masjid Jenderal Ahmad Yani
 
