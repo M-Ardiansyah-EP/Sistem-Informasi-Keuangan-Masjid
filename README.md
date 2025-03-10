@@ -1,10 +1,10 @@
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-  <img src="public/images/halaman_depan.png" style="max-width: 400px; width: 100%;" alt="Halaman Depan">
-  <img src="public/images/login.png" style="max-width: 400px; width: 100%;" alt="Login">
-  <img src="public/images/admin.png" style="max-width: 400px; width: 100%;" alt="Admin">
-  <img src="public/images/ketua.png" style="max-width: 400px; width: 100%;" alt="Ketua">
-  <img src="public/images/halaman_donatur.png" style="max-width: 400px; width: 100%;" alt="Halaman Donatur">
-  <img src="public/images/midtrans.png" style="max-width: 400px; width: 100%;" alt="Midtrans">
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; justify-items: center;">
+  <img src="public/images/halaman_depan.png" style="width: 100%; max-width: 300px;" alt="Halaman Depan">
+  <img src="public/images/login.png" style="width: 100%; max-width: 300px;" alt="Login">
+  <img src="public/images/admin.png" style="width: 100%; max-width: 300px;" alt="Admin">
+  <img src="public/images/ketua.png" style="width: 100%; max-width: 300px;" alt="Ketua">
+  <img src="public/images/halaman_donatur.png" style="width: 100%; max-width: 300px;" alt="Halaman Donatur">
+  <img src="public/images/midtrans.png" style="width: 100%; max-width: 300px;" alt="Midtrans">
 </div>
 
 # Sistem Informasi Keuangan Masjid Jenderal Ahmad Yani
